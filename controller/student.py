@@ -24,16 +24,16 @@ class Student():
     def findAllStudent(self):
         query = {}
         result = False
-        projection = {'_id': False, 'password': False}
+
         if "studentId" in self.q:
             studentId = self.q["studentId"]
             if studentId != "all":
                 query = {"studentId": studentId}
             else:
                 query = {}
-            result = list(student.find(query, projection))
+            result = list(student.find(query, self.projection))
         else:
-            result = False
+            result = []
         return {
             "status": True,
             "message": "Listing success.",

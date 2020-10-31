@@ -34,10 +34,9 @@ def universal():
     if request.method == 'POST':
         data = {"action": action, "query": query}
         getAction = Action(data)
-        finalQuery = getAction.generateQuery()
-
+        finalQuery = getAction.generateQuery2()
         if finalQuery != None:
-            finalResponse = finalQuery[1]
+            finalResponse = finalQuery
         else:
             finalResponse = {"message": "Action not yet implemented."}
 
