@@ -29,15 +29,57 @@ firebase = Firebase(config=config['firebaseConfig'])
 fstorage = firebase.storage()
 
 
-# download image from firebase
-def downloadImageFromFirebase(roomDir, studentDir, isOut):
+def testing(data):
+    roomDir = data['room_id']
+    studentDir = data['student_id']
+    isOut = data['is_out']
+
+    url = ''
+    pathLocalIn = 'attendance/' + roomDir + '/' + \
+        studentDir + '/in/' + studentDir + '-validated.jpg'
+    pathDownloadIn = download_path + 'validate/' + roomDir + \
+        '/' + studentDir + '/in/' + studentDir + '.jpg'
+    pathLocalOut = 'attendance/' + roomDir + '/' + \
+        studentDir + '/out/' + studentDir + '.jpg'
+    pathDownloadOut = download_path + 'validate/' + roomDir + \
+        '/' + studentDir + '/out/' + studentDir + '.jpg'
     try:
         if isOut == False:
-            fstorage.child('attendance/' + roomDir + '/' + studentDir + '/in/' + studentDir + '.jpg').download(
-                download_path + 'validate/' + roomDir + '/' + studentDir + '/in/' + studentDir + '.jpg')
+            url = fstorage.child(pathLocalIn).get_url(None)
         else:
-            fstorage.child('attendance/' + roomDir + '/' + studentDir + '/out/' + studentDir + '.jpg').download(
-                download_path + 'validate/' + roomDir + '/' + studentDir + '/out/' + studentDir + '.jpg')
+            url = fstorage.child(pathLocalOut).get_url(None)
+    except Exception as e:
+        print(e)
+    return url
+
+
+# download image from firebase
+def downloadImageFromFirebase(roomDir, studentDir, isOut):
+    pathLocalIn = 'attendance/' + roomDir + '/' + \
+        studentDir + '/in/' + studentDir + '.jpg'
+    pathDownloadIn = download_path + 'validate/' + roomDir + \
+        '/' + studentDir + '/in/' + studentDir + '.jpg'
+    pathLocalOut = 'attendance/' + roomDir + '/' + \
+        studentDir + '/out/' + studentDir + '.jpg'
+    pathDownloadOut = download_path + 'validate/' + roomDir + \
+        '/' + studentDir + '/out/' + studentDir + '.jpg'
+    try:
+        if isOut == False:
+            fstorage.child(pathLocalIn).download(pathDownloadIn)
+        else:
+            fstorage.child(pathLocalOut).download(pathDownloadOut)
+    except Exception as e:
+        print(e)
+    return True
+
+
+# download image base from firebase
+def downloadImageBaseFromFirebase(studentDir):
+    pathBase = 'base/' + studentDir + '/' + studentDir + '.jpg'
+    pathDownloadBase = download_path + 'base/' + \
+        studentDir + '/' + studentDir + '.jpg'
+    try:
+        fstorage.child(pathBase).put(pathDownloadBase)
     except Exception as e:
         print(e)
     return True
@@ -45,9 +87,10 @@ def downloadImageFromFirebase(roomDir, studentDir, isOut):
 
 # check directory for base
 def createDirectoryBase(dirName):
-    if os.path.isdir(download_path + 'base/' + dirName + '/') == False:
+    pathBase = download_path + 'base/' + dirName + '/'
+    if os.path.isdir(pathBase) == False:
         try:
-            os.mkdir(path=download_path + 'base/' + dirName + '/')
+            os.mkdir(path=pathBase)
         except Exception as e:
             print(e)
         return True
@@ -57,27 +100,32 @@ def createDirectoryBase(dirName):
 
 # check directory for validate
 def createDirectoryValidate(roomDir, studentDir):
-    if os.path.isdir(download_path + 'validate/' + roomDir + '/') == False:
+    pathDirValidate = download_path + 'validate/' + roomDir + '/'
+    pathDirValidateStudent = download_path + \
+        'validate/' + roomDir + '/' + studentDir + '/'
+
+    pathStudentValidateIn = download_path + \
+        'validate/' + roomDir + '/' + studentDir + '/in/'
+    pathStudentValidateOut = download_path + \
+        'validate/' + roomDir + '/' + studentDir + '/out/'
+
+    if os.path.isdir(pathDirValidate) == False:
         try:
-            os.mkdir(path=download_path + 'validate/' + roomDir + '/')
+            os.mkdir(path=pathDirValidate)
             createDirectoryValidate(roomDir=roomDir, studentDir=studentDir)
         except Exception as e:
             print(e)
     else:
-        if os.path.isdir(download_path +
-                         'validate/' + roomDir + '/' + studentDir + '/') == False:
+        if os.path.isdir(pathDirValidateStudent) == False:
             try:
-                os.mkdir(path=download_path +
-                         'validate/' + roomDir + '/' + studentDir + '/')
+                os.mkdir(path=pathDirValidateStudent)
                 createDirectoryValidate(roomDir=roomDir, studentDir=studentDir)
             except Exception as e:
                 print(e)
         else:
             try:
-                os.mkdir(path=download_path + 'validate/' +
-                         roomDir + '/' + studentDir + '/in/')
-                os.mkdir(path=download_path + 'validate/' +
-                         roomDir + '/' + studentDir + '/out/')
+                os.mkdir(path=pathStudentValidateIn)
+                os.mkdir(path=pathStudentValidateOut)
             except Exception as e:
                 print(e)
     return True
@@ -89,11 +137,11 @@ def doValidate(data):
     _isOut = data['is_out']
 
     createDirectoryBase(_studentId)
-
     createDirectoryValidate(
         roomDir=_roomId,
         studentDir=_studentId
     )
+    downloadImageBaseFromFirebase(studentDir=_studentId)
     downloadImageFromFirebase(
         roomDir=_roomId,
         studentDir=_studentId,
@@ -115,39 +163,46 @@ def doValidate(data):
             '/' + _studentId + '/out/' + _studentId + '.jpg'
         imgValidatedFileName = download_path + 'validate/' + _roomId + \
             '/' + _studentId + '/out/' + _studentId + '-validated.jpg'
-        imgValidatedFileNameUpload = 'attendance/' + _roomId + \
-            '/' + _studentId + '/out/' + _studentId + '-validated.jpg'
+        imgValidatedFileNameUpload = 'attendance/' + _roomId + '/' + \
+            _studentId + '/out/' + _studentId + '-validated.jpg'
 
     imgBasePath = download_path + 'base/' + _studentId + '/' + _studentId + '.jpg'
 
     # recognition process
-    imgValidate = face_recognition.load_image_file(imgValidatePath)
-    imgValidate = cv2.cvtColor(imgValidate, cv2.COLOR_BGR2RGB)
+    imgValidateOri = cv2.imread(
+        imgValidatePath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
+    # imgValidate = face_recognition.load_image_file(imgValidateOri)
+    # imgValidate = cv2.cvtColor(imgValidate, cv2.COLOR_BGR2RGB)
 
-    imgBase = face_recognition.load_image_file(imgBasePath)
-    imgBase = cv2.cvtColor(imgBase, cv2.COLOR_BGR2RGB)
+    imgBaseOri = cv2.imread(
+        imgBasePath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
+    # imgBase = face_recognition.load_image_file(imgBaseOri)
+    # imgBase = cv2.cvtColor(imgBase, cv2.COLOR_BGR2RGB)
 
     # search face location then encode it => imgBase
-    imgBaseFaceLoc = face_recognition.face_locations(imgBase)[0]
-    encodeBaseFace = face_recognition.face_encodings(imgBase)[0]
+    imgBaseFaceLoc = face_recognition.face_locations(imgBaseOri)[0]
+    encodeBaseFace = face_recognition.face_encodings(imgBaseOri)[0]
     cv2.rectangle(
-        imgBase,
+        imgBaseOri,
         (imgBaseFaceLoc[3], imgBaseFaceLoc[0]),
         (imgBaseFaceLoc[1], imgBaseFaceLoc[2]),
         (255, 0, 255),
         2
     )
+    cv2.imshow('Base Face', imgBaseOri)
 
     # search face location then encode it => imgValidate
-    imgValidateFaceLoc = face_recognition.face_locations(imgValidate)[0]
-    encodeValidateFace = face_recognition.face_encodings(imgValidate)[0]
+    imgValidateFaceLoc = face_recognition.face_locations(imgValidateOri)[0]
+    encodeValidateFace = face_recognition.face_encodings(imgValidateOri)[0]
     cv2.rectangle(
-        imgValidate,
+        imgValidateOri,
         (imgValidateFaceLoc[3], imgValidateFaceLoc[0]),
         (imgValidateFaceLoc[1], imgValidateFaceLoc[2]),
         (255, 0, 255),
         2
     )
+    cv2.imshow('Validate Face', imgValidateOri)
+    cv2.waitKey(0)
 
     result = face_recognition.compare_faces(
         [encodeBaseFace],
@@ -165,7 +220,7 @@ def doValidate(data):
     print('=====[LOG RESULT COMPARE END]=====')
 
     cv2.putText(
-        imgValidate,
+        imgValidateOri,
         f'{result} {round(faceDistance[0], 2)}',
         (50, 50),
         cv2.FONT_HERSHEY_COMPLEX,
@@ -174,11 +229,14 @@ def doValidate(data):
         2
     )
 
-    cv2.imwrite(imgValidatedFileName, imgValidate)
+    cv2.imwrite(imgValidatedFileName, imgValidateOri)
     fstorage.child(imgValidatedFileNameUpload).put(imgValidatedFileName)
+
+    url_validated = fstorage.child(imgValidatedFileNameUpload).get_url(None)
 
     finalResult = {
         "result": str(result[0]),
+        "image_url_validated": url_validated,
         "face_distance": round(faceDistance[0], 2)
     }
 

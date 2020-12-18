@@ -1,4 +1,5 @@
 import json
+from cv2 import data
 
 from flask.globals import request
 import controller.validate as vl
@@ -19,6 +20,14 @@ config = json.load(fileConfig)
 def validateFace():
     body = request.get_json()
     result = vl.doValidate(body)
+    return BaseResponse.generateBaseResponse(data=result, responseCode=200, responseMessage='success')
+
+
+# testing
+@app.route('/test', methods=['GET', 'POST'])
+def testing():
+    body = request.get_json()
+    result = vl.testing(body)
     return BaseResponse.generateBaseResponse(data=result, responseCode=200, responseMessage='success')
 
 
