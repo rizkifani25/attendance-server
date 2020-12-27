@@ -79,7 +79,7 @@ def downloadImageBaseFromFirebase(studentDir):
     pathDownloadBase = download_path + 'base/' + \
         studentDir + '/' + studentDir + '.jpg'
     try:
-        fstorage.child(pathBase).put(pathDownloadBase)
+        fstorage.child(pathBase).download(pathDownloadBase)
     except Exception as e:
         print(e)
     return True
@@ -189,7 +189,7 @@ def doValidate(data):
         (255, 0, 255),
         2
     )
-    cv2.imshow('Base Face', imgBaseOri)
+    # cv2.imshow('Base Face', imgBaseOri)
 
     # search face location then encode it => imgValidate
     imgValidateFaceLoc = face_recognition.face_locations(imgValidateOri)[0]
@@ -201,8 +201,8 @@ def doValidate(data):
         (255, 0, 255),
         2
     )
-    cv2.imshow('Validate Face', imgValidateOri)
-    cv2.waitKey(0)
+    # cv2.imshow('Validate Face', imgValidateOri)
+    # cv2.waitKey(0)
 
     result = face_recognition.compare_faces(
         [encodeBaseFace],
