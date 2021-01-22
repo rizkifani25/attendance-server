@@ -189,7 +189,7 @@ def doValidate(data):
         (255, 0, 255),
         2
     )
-    # cv2.imshow('Base Face', imgBaseOri)
+    cv2.imshow('Base Face', imgBaseOri)
 
     # search face location then encode it => imgValidate
     imgValidateFaceLoc = face_recognition.face_locations(imgValidateOri)[0]
@@ -201,12 +201,13 @@ def doValidate(data):
         (255, 0, 255),
         2
     )
-    # cv2.imshow('Validate Face', imgValidateOri)
-    # cv2.waitKey(0)
+    cv2.imshow('Validate Face', imgValidateOri)
+    cv2.waitKey(0)
 
     result = face_recognition.compare_faces(
         [encodeBaseFace],
-        encodeValidateFace
+        encodeValidateFace,
+        0.35
     )
     faceDistance = face_recognition.face_distance(
         [encodeBaseFace],

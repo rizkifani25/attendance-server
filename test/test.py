@@ -5,13 +5,13 @@ import face_recognition
 # recognition process
 # imgBaseOri = face_recognition.load_image_file('base.jpg')
 imgBaseOri = cv2.imread(
-    'base4.jpg', cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
+    'validate6.jpg', cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
 # imgBase = face_recognition.load_image_file(imgBaseOri)
 # imgBaseOri = cv2.cvtColor(imgBaseOri, cv2.COLOR_BGR2RGB)
 
 # imgValidateOri = face_recognition.load_image_file('validate.jpg')
 imgValidateOri = cv2.imread(
-    'validate5.jpeg', cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
+    'validate9.jpg', cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
 # imgValidate = face_recognition.load_image_file(imgValidateOri)
 # imgValidateOri = cv2.cvtColor(imgValidateOri, cv2.COLOR_BGR2RGB)
 
